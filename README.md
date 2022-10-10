@@ -12,3 +12,15 @@ terrain generator using random noises and voxel mesh
 
 ## Unreal Engine
 * Unreal Engine's partial source will be on this repository as version managing
+
+## Hierarchy Graph
+![Terrain Generator Hierarchy Design](https://user-images.githubusercontent.com/13249604/194839277-086d4d4f-28b9-4b4d-a0b1-2c78b0a98fbb.png)
+* STabWidgetMain
+  * maintains the FTerrainModifier instance
+  * constructs each tabs and initializes it
+
+* FTerrainModifier
+  * provides methods for each tabs to utilize
+  * saves the values that needs to be shared between all tabs
+
+
