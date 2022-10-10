@@ -9,6 +9,9 @@
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
 
+#include "../UI/STerrainDetails.h"
+#include "..\Public\TerrainGenerator.h"
+
 static const FName TerrainGeneratorTabName("TerrainGenerator");
 
 #define LOCTEXT_NAMESPACE "FTerrainGeneratorModule"
@@ -22,6 +25,9 @@ void FTerrainGeneratorModule::StartupModule()
 
 	FTerrainGeneratorCommands::Register();
 	
+	if (false == InitializeTerrainModifier())
+		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerator] : plugin initialize failed"));
+
 	PluginCommands = MakeShareable(new FUICommandList);
 
 	PluginCommands->MapAction(
@@ -54,11 +60,7 @@ void FTerrainGeneratorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FTerrainGeneratorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	return SPluginMainTab::ConstructMainTab();
-
-	/*
- 
- FText WidgetText = FText::Format(
+	FText WidgetText = FText::Format(
 		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
 		FText::FromString(TEXT("FTerrainGeneratorModule::OnSpawnPluginTab")),
 		FText::FromString(TEXT("TerrainGenerator.cpp"))
@@ -68,20 +70,34 @@ TSharedRef<SDockTab> FTerrainGeneratorModule::OnSpawnPluginTab(const FSpawnTabAr
 		.TabRole(ETabRole::NomadTab)
 		[
 			// Put your tab content here!
-			SNew(SBox)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
+			SNew(SVerticalBox)
+			+SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
+			.Padding(5.f, 5.f, 5.f, 0.f)
 			[
 				SNew(STextBlock)
-				.Text(WidgetText)
+				.Text(FText(LOCTEXT("PluginTitle", "Terrain Generator")))
+			]
+			+SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
+			[
+				SNew(STabWidgetMain)
+				.isVisible(true)
+				.modifierInstance(TerrainModifier)
 			]
 		];
-		*/
 }
 
 void FTerrainGeneratorModule::PluginButtonClicked()
 {
 	FGlobalTabmanager::Get()->TryInvokeTab(TerrainGeneratorTabName);
+}
+
+bool FTerrainGeneratorModule::InitializeTerrainModifier()
+{
+	TerrainModifier = MakeShareable(new FTerrainModifier);
+
+	return TerrainModifier.IsValid();
 }
 
 void FTerrainGeneratorModule::RegisterMenus()

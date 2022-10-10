@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-#include "../Private/UI/PluginMainTab.h"
+#include "../UI/TabWidget.h"
+#include "../Terrain/TerrainModifier.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -17,10 +18,13 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
+
 	/** This function will be bound to Command (by default it will bring up plugin window) */
 	void PluginButtonClicked();
 	
+public:
+	bool InitializeTerrainModifier();
+
 private:
 
 	void RegisterMenus();
@@ -29,4 +33,7 @@ private:
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
+
+	TSharedPtr<FTerrainModifier> TerrainModifier;
+	//TSharedPtr<SGenerateTerrainTab> generateTerrainTab;
 };
