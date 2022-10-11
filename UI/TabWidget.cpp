@@ -26,14 +26,14 @@ void STabWidgetMain::constructWidget()
 		[
 			SAssignNew(terrainGenerateTab, STerrainGenerate)
 			.isVisible(true)
-			.modifierInstance(ModifierInstance)
+			.modifierInstance(ModifierInstance.Pin())
 		]
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Center)
 		[
 			// TODO : pass ModifierInstance as SLATE_ARGUMENT
 			SAssignNew(terrainDetailsTab, STerrainDetails)
-			.modifierInstance(ModifierInstance)
+			.modifierInstance(ModifierInstance.Pin())
 		]
 	];
 }

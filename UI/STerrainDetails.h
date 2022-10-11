@@ -36,6 +36,6 @@ protected:
 	TSharedPtr<SButton> GenerateTerrainButton;
 
 protected:
-	TSharedPtr<FTerrainModifier> ModifierInstance;
+	TWeakPtr<FTerrainModifier> ModifierInstance;
 	//TWeakPtr<FTerrainModifier> ModifierInstance;
 };

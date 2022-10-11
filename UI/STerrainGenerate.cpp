@@ -55,7 +55,7 @@ FReply STerrainGenerate::OnGenerateTerrainButtonClicked()
 	if(false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
 
-	ModifierInstance->GenerateRandomNoise();
+	ModifierInstance.Pin()->GenerateRandomNoise();
 	return FReply::Handled();
 }
 

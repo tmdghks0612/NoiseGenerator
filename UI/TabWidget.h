@@ -39,5 +39,5 @@ protected:
 
 protected:
 	// Terrain Modifier Instance
-	TSharedPtr<FTerrainModifier> ModifierInstance;
+	TWeakPtr<FTerrainModifier> ModifierInstance;
 };
