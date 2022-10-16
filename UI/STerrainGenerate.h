@@ -24,18 +24,21 @@ public:
 		void Construct(const FArguments& InArgs);
 	~STerrainGenerate();
 
+public:
+	void OnMinHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
+	void OnMaxHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
+
 private:
 	void constructWidgets();
+
+	TOptional<int32> OnGetMinHeightValue() const;
+	TOptional<int32> OnGetMaxHeightValue() const;
 
 protected:
 
 	FReply OnGenerateTerrainButtonClicked();
 
 protected:
-	// min max height input TextBox widget
-	TSharedPtr<SNumericEntryBox<int32>> minHeightEntryBox;
-	TSharedPtr<SEditableTextBox> maxHeightTextBox;
-
 	TSharedPtr<SButton> GenerateTerrainButton;
 
 protected:

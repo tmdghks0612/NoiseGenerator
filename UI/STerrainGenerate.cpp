@@ -15,6 +15,26 @@ STerrainGenerate::~STerrainGenerate()
 {
 }
 
+void STerrainGenerate::OnMinHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
+{
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+
+	if (ModifierInstance.IsValid())
+	{
+		ModifierInstance.Pin()->SetMinHeight(ClampValue);
+	}
+}
+
+void STerrainGenerate::OnMaxHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
+{
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+
+	if (ModifierInstance.IsValid())
+	{
+		ModifierInstance.Pin()->SetMaxHeight(ClampValue);
+	}
+}
+
 void STerrainGenerate::constructWidgets()
 {
 	ChildSlot
@@ -24,17 +44,17 @@ void STerrainGenerate::constructWidgets()
 		.AutoHeight()
 		.VAlign(VAlign_Top)
 		[
-			SAssignNew(minHeightEntryBox, SNumericEntryBox<int32>)
-			//.HintText(FText(LOCTEXT("MinValue", "Min Height")))
-		.MinDesiredValueWidth(10.f)
+			SNew(SNumericEntryBox<int32>)
+			.OnValueCommitted(this, &STerrainGenerate::OnMinHeightCommitted)
+			.Value(this, &STerrainGenerate::OnGetMinHeightValue)
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.VAlign(VAlign_Top)
 		[
-			SAssignNew(maxHeightTextBox, SEditableTextBox)
-			.HintText(FText(LOCTEXT("MaxValue", "Max Height")))
-		.MinDesiredWidth(10.f)
+			SNew(SNumericEntryBox<int32>)
+			.OnValueCommitted(this, &STerrainGenerate::OnMaxHeightCommitted)
+			.Value(this, &STerrainGenerate::OnGetMaxHeightValue)
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -48,6 +68,24 @@ void STerrainGenerate::constructWidgets()
 			]
 		]
 	];
+}
+
+TOptional<int32> STerrainGenerate::OnGetMinHeightValue() const
+{
+	if (ModifierInstance.IsValid())
+	{
+		return ModifierInstance.Pin()->GetMinHeight();
+	}
+	return 0;
+}
+
+TOptional<int32> STerrainGenerate::OnGetMaxHeightValue() const
+{
+	if (ModifierInstance.IsValid())
+	{
+		return ModifierInstance.Pin()->GetMaxHeight();
+	}
+	return 0;
 }
 
 FReply STerrainGenerate::OnGenerateTerrainButtonClicked()
