@@ -27,6 +27,9 @@ public:
 public:
 	void OnMinHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
 	void OnMaxHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
+	
+	void OnTerrainXSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
+	void OnTerrainYSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
 
 private:
 	void constructWidgets();
@@ -34,9 +37,12 @@ private:
 	TOptional<int32> OnGetMinHeightValue() const;
 	TOptional<int32> OnGetMaxHeightValue() const;
 
+	TOptional<int32> OnGetTerrainXSizeValue() const;
+	TOptional<int32> OnGetTerrainYSizeValue() const;
+
 protected:
 
-	FReply OnGenerateTerrainButtonClicked();
+	FReply OnGenerateTerrainTextureButtonClicked();
 
 protected:
 	TSharedPtr<SButton> GenerateTerrainButton;

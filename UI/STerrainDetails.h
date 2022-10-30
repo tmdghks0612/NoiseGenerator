@@ -26,7 +26,7 @@ private:
 
 protected:
 
-	FReply OnGenerateTerrainButtonClicked();
+	FReply OnGenerateTerrainTextureButtonClicked();
 
 protected:
 	// min max height input TextBox widget

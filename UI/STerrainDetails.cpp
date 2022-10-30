@@ -25,14 +25,14 @@ void STerrainDetails::constructWidgets()
 			.Padding(2.f)
 			[
 				SAssignNew(GenerateTerrainButton, SButton)
-				.OnClicked(this, &STerrainDetails::OnGenerateTerrainButtonClicked)
+				.OnClicked(this, &STerrainDetails::OnGenerateTerrainTextureButtonClicked)
 			.ToolTipText(LOCTEXT("UpdateRevisionToolTip", "Updates the stored revision GUID on all instances of this Modifier class, marking them out-of-date."))
 			.Text(LOCTEXT("UpdateRevisionText", "Update Revision"))
 			]
 		];
 }
 
-FReply STerrainDetails::OnGenerateTerrainButtonClicked()
+FReply STerrainDetails::OnGenerateTerrainTextureButtonClicked()
 {
 	if (false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
@@ -40,5 +40,15 @@ FReply STerrainDetails::OnGenerateTerrainButtonClicked()
 	ModifierInstance.Pin()->GenerateRandomNoise();
 	return FReply::Handled();
 }
+
+/*
+FReply STerrainDetails::OnGenerateTerrainButtonClicked()
+{
+	if (false == ModifierInstance.IsValid())
+		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
+
+	ModifierInstance.Pin()->GenerateRandomNoise();
+	return FReply::Handled();
+}*/
 
 #undef LOCTEXT_NAMESPACE
