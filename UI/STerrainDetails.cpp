@@ -37,18 +37,8 @@ FReply STerrainDetails::OnGenerateTerrainTextureButtonClicked()
 	if (false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
 
-	ModifierInstance.Pin()->GenerateRandomNoise();
+	ModifierInstance.Pin()->GenerateRandomNoiseTexture();
 	return FReply::Handled();
 }
-
-/*
-FReply STerrainDetails::OnGenerateTerrainButtonClicked()
-{
-	if (false == ModifierInstance.IsValid())
-		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
-
-	ModifierInstance.Pin()->GenerateRandomNoise();
-	return FReply::Handled();
-}*/
 
 #undef LOCTEXT_NAMESPACE

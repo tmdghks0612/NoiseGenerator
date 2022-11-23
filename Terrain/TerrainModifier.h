@@ -28,8 +28,19 @@ public:
 
 public:
 
+	void InitTerrain2DArray();
+
+	// create random noise values on terrain2DArray
+	void GenerateRandomTerrain2DArray();
+
+	// create a textrue from values of terrain2DArray
+	void GenerateTextureByTerrain2DArray();
+
+	// UTexture2D::CreateTransient using custom path
+	void InitTexturePackage(FString pathName, FString packageName);
+
 	// TODO : Random Noise Generate
-	void GenerateRandomNoise();
+	void GenerateRandomNoiseTexture();
 
 private:
 	int32 minHeight;
@@ -38,5 +49,9 @@ private:
 	int32 terrainXSize;
 	int32 terrainYSize;
 
+	int32 terrainXYSize;
+
 	TArray<int32> terrain2DArray;
+
+	TArray<int8> terrainRawImageData;
 };

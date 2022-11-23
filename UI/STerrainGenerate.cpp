@@ -18,7 +18,7 @@ STerrainGenerate::~STerrainGenerate()
 
 void STerrainGenerate::OnMinHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
 {
-	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 32767);
 
 	if (ModifierInstance.IsValid())
 	{
@@ -28,7 +28,7 @@ void STerrainGenerate::OnMinHeightCommitted(int32 NewValue, ETextCommit::Type Co
 
 void STerrainGenerate::OnMaxHeightCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
 {
-	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 32767);
 
 	if (ModifierInstance.IsValid())
 	{
@@ -38,7 +38,7 @@ void STerrainGenerate::OnMaxHeightCommitted(int32 NewValue, ETextCommit::Type Co
 
 void STerrainGenerate::OnTerrainXSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
 {
-	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 32767);
 
 	if (ModifierInstance.IsValid())
 	{
@@ -48,7 +48,7 @@ void STerrainGenerate::OnTerrainXSizeCommitted(int32 NewValue, ETextCommit::Type
 
 void STerrainGenerate::OnTerrainYSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
 {
-	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 65536);
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 32767);
 
 	if (ModifierInstance.IsValid())
 	{
@@ -136,7 +136,7 @@ FReply STerrainGenerate::OnGenerateTerrainTextureButtonClicked()
 	if(false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
 
-	ModifierInstance.Pin()->GenerateRandomNoise();
+	ModifierInstance.Pin()->GenerateRandomNoiseTexture();
 	return FReply::Handled();
 }
 
