@@ -31,6 +31,8 @@ public:
 	void OnTerrainXSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
 	void OnTerrainYSizeCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
 
+	void OnBumpinessCommitted(int32 NewValue, ETextCommit::Type CommitInfo);
+
 private:
 	void constructWidgets();
 
@@ -39,6 +41,8 @@ private:
 
 	TOptional<int32> OnGetTerrainXSizeValue() const;
 	TOptional<int32> OnGetTerrainYSizeValue() const;
+
+	TOptional<int32> OnGetBumpiness() const;
 
 protected:
 

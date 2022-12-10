@@ -56,6 +56,16 @@ void STerrainGenerate::OnTerrainYSizeCommitted(int32 NewValue, ETextCommit::Type
 	}
 }
 
+void STerrainGenerate::OnBumpinessCommitted(int32 NewValue, ETextCommit::Type CommitInfo)
+{
+	const int32 ClampValue = FMath::Clamp<int32>(NewValue, 0, 32767);
+
+	if (ModifierInstance.IsValid())
+	{
+		ModifierInstance.Pin()->SetBumpiness(ClampValue);
+	}
+}
+
 void STerrainGenerate::constructWidgets()
 {
 	ChildSlot
@@ -80,6 +90,23 @@ void STerrainGenerate::constructWidgets()
 			.TitleText(FText::FromString("Min/Max Height"))
 			.OnFirstValueCommittedDelegate(this, &STerrainGenerate::OnMinHeightCommitted)
 			.OnSecondValueCommittedDelegate(this, &STerrainGenerate::OnMaxHeightCommitted)
+		]
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Top)
+		.Padding(5.f, 5.f, 5.f, 0.f)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("Bumpiness"))
+		]
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Top)
+		.Padding(5.f, 5.f, 5.f, 0.f)
+		[
+			SNew(SNumericEntryBox<int32>)
+			.OnValueCommitted(this, &STerrainGenerate::OnBumpinessCommitted)
+			.Value(this, &STerrainGenerate::OnGetBumpiness)
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -131,10 +158,21 @@ TOptional<int32> STerrainGenerate::OnGetTerrainYSizeValue() const
 	return 0;
 }
 
+TOptional<int32> STerrainGenerate::OnGetBumpiness() const
+{
+	if (ModifierInstance.IsValid())
+	{
+		return ModifierInstance.Pin()->GetBumpiness();
+	}
+	return 0;
+}
+
 FReply STerrainGenerate::OnGenerateTerrainTextureButtonClicked()
 {
 	if(false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
+
+	ModifierInstance.Pin()->InitTerrain2DArray();
 
 	ModifierInstance.Pin()->GenerateRandomNoiseTexture();
 	return FReply::Handled();
