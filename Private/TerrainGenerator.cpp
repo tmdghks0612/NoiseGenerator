@@ -60,12 +60,6 @@ void FTerrainGeneratorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FTerrainGeneratorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
-	FText WidgetText = FText::Format(
-		LOCTEXT("WindowWidgetText", "Add code to {0} in {1} to override this window's contents"),
-		FText::FromString(TEXT("FTerrainGeneratorModule::OnSpawnPluginTab")),
-		FText::FromString(TEXT("TerrainGenerator.cpp"))
-		);
-
 	return SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
@@ -73,13 +67,15 @@ TSharedRef<SDockTab> FTerrainGeneratorModule::OnSpawnPluginTab(const FSpawnTabAr
 			SNew(SVerticalBox)
 			+SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
-			.Padding(5.f, 5.f, 5.f, 0.f)
+			.AutoHeight()
+			.Padding(0.5f, 0.5f, 0.5f, 1.5f)
 			[
 				SNew(STextBlock)
 				.Text(FText(LOCTEXT("PluginTitle", "Terrain Generator")))
 			]
 			+SVerticalBox::Slot()
-			.VAlign(VAlign_Top)
+			.VAlign(VAlign_Center)
+			.Padding(0.5f, 0.f, 0.5f, 0.5f)
 			[
 				SNew(STabWidgetMain)
 				.isVisible(true)

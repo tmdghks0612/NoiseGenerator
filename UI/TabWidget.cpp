@@ -23,11 +23,13 @@ void STabWidgetMain::constructWidget()
 		SNew(SHorizontalBox)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Center)
+		.Padding(0.5f, 0.5f, 0.5f, 0.5f)
 		[
 			SAssignNew(terrainGenerateTab, STerrainGenerate)
 			.isVisible(true)
 			.modifierInstance(ModifierInstance.Pin())
 		]
+		/* [2022/12/15 tmdghks0612] terrain details tab is not ready to be updated
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Center)
 		[
@@ -35,6 +37,7 @@ void STabWidgetMain::constructWidget()
 			SAssignNew(terrainDetailsTab, STerrainDetails)
 			.modifierInstance(ModifierInstance.Pin())
 		]
+		*/
 	];
 }
 
