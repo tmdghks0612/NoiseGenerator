@@ -3,6 +3,8 @@
 #include "Engine/Texture2D.h"
 #include "UObject/UObjectGlobals.h"
 
+#include <random>
+
 #define LOCTEXT_NAMESPACE "FTerrainModifier"
 
 FTerrainModifier::FTerrainModifier()
@@ -92,6 +94,11 @@ void FTerrainModifier::GenerateRandomNoiseTexture()
 {
 	UE_LOG(LogTemp, Log, TEXT("[FTerrianModifier] minHeight : %d, maxHeight : %d"), minHeight, maxHeight);
 
+	std::random_device rd;
+	std::mt19937 generator(rd());
+
+	std::uniform_real_distribution<double> fadeRandom(OCTAVE_FADE_MIN_RATE, OCTAVE_FADE_MAX_RATE);
+
 	InitTerrain2DArray();
 
 	double amplitude = FMath::RandRange(float(maxHeight / OCTAVE_FADE_MAX_RATE), float(maxHeight / OCTAVE_FADE_MIN_RATE));
@@ -104,11 +111,14 @@ void FTerrainModifier::GenerateRandomNoiseTexture()
 	float interpolationAlpha = 1.0f;
 
 	// if frequency exceeds standardsize, every value starts to become uniform
-	while (frequency < standardSize)
+	while (frequency < standardSize &&
+		amplitude > 1.0f)
 	{
-		GenerateRandomTerrain2DArrayByCellSize(interpolationAlpha, amplitude, frequency);
+		std::uniform_real_distribution<double> noiseRandom(-360.0f / frequency, 360.0f / frequency);
 
-		float fadeRate = FMath::RandRange(OCTAVE_FADE_MIN_RATE, OCTAVE_FADE_MAX_RATE);
+		GenerateRandomTerrain2DArrayByCellSize(interpolationAlpha, amplitude, frequency, noiseRandom(generator));
+
+		float fadeRate = fadeRandom(generator);
 
 		amplitude /= fadeRate;
 		frequency *= fadeRate;
@@ -136,10 +146,8 @@ void FTerrainModifier::MapArrayByHeightRange()
 	}
 }
 
-void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency)
+void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise)
 {
-	const double startNoise = FMath::RandRange(-1.0f, 1.0f) * 360.0f / frequency;
-
 	// cell array used average value of 4 points
 	
 	for (int32 terrainYIndex = 0; terrainYIndex < terrainYSize; ++terrainYIndex)

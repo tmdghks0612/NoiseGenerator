@@ -58,7 +58,7 @@ private:
 	void MapArrayByHeightRange();
 
 	// create random noise for given cell size
-	void GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency);
+	void GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise);
 
 	// create a textrue from values of terrain2DArray
 	void GenerateTextureByTerrain2DArray();
