@@ -125,31 +125,67 @@ void FTerrainModifier::GenerateRandomNoiseTexture()
 		interpolationAlpha /= fadeRate;
 	}
 
-	MapArrayByHeightRange();
+	ClampArrayByHeightRange(minHeight, maxHeight, terrain2DArray);
 
 	// set raw image data according to cell size according to terrain2DArray
 	GenerateRawImage();
 
 	// Generate 2D Texture
 	GenerateTextureByTerrain2DArray();
-
 }
 
-void FTerrainModifier::MapArrayByHeightRange()
+void FTerrainModifier::GenerateRandomNoiseArray(int32 xSize, int32 ySize, float genMinHeight, float genMaxHeight, int32 genBumpiness, TArray<float>& outArray)
 {
-	// proportion of diff between given min max height
-	const float minMaxRatio = (float)(maxHeight - minHeight) / maxHeight;
-
-	for (int32 terrainIndex = 0; terrainIndex < terrainXYSize; ++terrainIndex)
+	if (xSize * ySize > 1073676289)
 	{
-		terrain2DArray[terrainIndex] = minHeight + terrain2DArray[terrainIndex] * minMaxRatio;
+		UE_LOG(LogTemp, Log, TEXT("[FTerrianModifier] minHeight : %d, maxHeight : %d. Size out of range 0~1073676289"), genMinHeight, genMaxHeight);
+		return;
+	}
+	
+	outArray.Init(0, xSize * ySize);
+	
+	std::random_device rd;
+	std::mt19937 generator(rd());
+
+	std::uniform_real_distribution<double> fadeRandom(OCTAVE_FADE_MIN_RATE, OCTAVE_FADE_MAX_RATE);
+
+	double amplitude = FMath::RandRange(float(genMaxHeight / OCTAVE_FADE_MAX_RATE), float(genMaxHeight / OCTAVE_FADE_MIN_RATE));
+
+	// determined by bigger size between x and y axis
+	float standardSize = ((xSize > ySize) ? xSize : ySize);
+
+	float frequency = float(genBumpiness) / standardSize;
+
+	float interpolationAlpha = 1.0f;
+
+	// if frequency exceeds standardsize, every value starts to become uniform
+	while (frequency < standardSize &&
+		amplitude > 1.0f)
+	{
+		std::uniform_real_distribution<double> noiseRandom(-360.0f / frequency, 360.0f / frequency);
+
+		GenerateRandomTerrain2DArray(xSize, ySize, interpolationAlpha, amplitude, frequency, noiseRandom(generator), outArray);
+
+		float fadeRate = fadeRandom(generator);
+
+		amplitude /= fadeRate;
+		frequency *= fadeRate;
+		interpolationAlpha /= fadeRate;
+	}
+
+	ClampArrayByHeightRange(genMinHeight, genMaxHeight, outArray);
+}
+
+void FTerrainModifier::ClampArrayByHeightRange(const float clampMinHeight, const float clampMaxHeight, TArray<float>& inputTerrain2DArray)
+{
+	for (int32 arrayIndex = 0; arrayIndex < inputTerrain2DArray.Num(); ++arrayIndex)
+	{
+		inputTerrain2DArray[arrayIndex] = FMath::Clamp(inputTerrain2DArray[arrayIndex], clampMinHeight, clampMaxHeight);
 	}
 }
 
 void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise)
 {
-	// cell array used average value of 4 points
-	
 	for (int32 terrainYIndex = 0; terrainYIndex < terrainYSize; ++terrainYIndex)
 	{
 		for (int32 terrainXIndex = 0; terrainXIndex < terrainXSize; ++terrainXIndex)
@@ -165,6 +201,29 @@ void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interp
 	for (int32 terrainIndex = 0; terrainIndex < terrainXYSize; ++terrainIndex)
 	{
 		terrain2DArray[terrainIndex] = FMath::Lerp(terrain2DArray[terrainIndex], octaveArray[terrainIndex], interpolationAlpha);
+	}
+}
+
+void FTerrainModifier::GenerateRandomTerrain2DArray(const float xSize, const float ySize, const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise, TArray<float>& outArray)
+{
+	TArray<float> tempOctaveArray;
+	tempOctaveArray.Init(0, xSize * ySize);
+
+	for (int32 terrainYIndex = 0; terrainYIndex < ySize; ++terrainYIndex)
+	{
+		for (int32 terrainXIndex = 0; terrainXIndex < xSize; ++terrainXIndex)
+		{
+			tempOctaveArray[xSize * terrainYIndex + terrainXIndex] =
+				amplitude *
+				(FGenericPlatformMath::Sin(frequency * (double(terrainXIndex)) + startNoise) +
+					FGenericPlatformMath::Sin(frequency * (double(terrainYIndex)) + startNoise) + 2) / 4;
+		}
+	}
+
+	// interpolating octave array with decreasing
+	for (int32 terrainIndex = 0; terrainIndex < xSize * ySize; ++terrainIndex)
+	{
+		outArray[terrainIndex] = FMath::Lerp(outArray[terrainIndex], tempOctaveArray[terrainIndex], interpolationAlpha);
 	}
 }
 

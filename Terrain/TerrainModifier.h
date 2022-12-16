@@ -50,15 +50,19 @@ public:
 	// UTexture2D::CreateTransient using custom path
 	void InitTexturePackage(FString pathName, FString packageName);
 
-	// TODO : Random Noise Generate
+	// Random Noise to default array for texture output
 	void GenerateRandomNoiseTexture();
+
+	static void GenerateRandomNoiseArray(int32 xSize, int32 ySize, float genMinHeight, float genMaxHeight, int32 genBumpiness, TArray<float>& outArray);
 
 private:
 	// map array by input height range
-	void MapArrayByHeightRange();
+	static void ClampArrayByHeightRange(const float mapMinHeight, const float mapMaxHeight, TArray<float>& inputTerrain2DArray);
 
 	// create random noise for given cell size
 	void GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise);
+
+	static void GenerateRandomTerrain2DArray(const float xSize, const float ySize, const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise, TArray<float>& outArray);
 
 	// create a textrue from values of terrain2DArray
 	void GenerateTextureByTerrain2DArray();
