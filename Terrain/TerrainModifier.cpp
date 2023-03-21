@@ -8,13 +8,16 @@
 #define LOCTEXT_NAMESPACE "FTerrainModifier"
 
 FTerrainModifier::FTerrainModifier()
-	: minHeight(0),
-	maxHeight(0),
-	terrainXSize(0),
-	terrainYSize(0),
-	terrainXYSize(0),
-	bumpiness(0),
-	cellSize(ECellSize::Type::CellBy4)
+	: _minHeight(0),
+	_maxHeight(0),
+	_terrainXSize(0),
+	_terrainYSize(0),
+	_terrainXYSize(0),
+	_bumpiness(0),
+	_cellXSize(0),
+	_cellYSize(0),
+	_pow(0),
+	_cellSize(ECellSize::Type::CellBy4)
 {
 }
 
@@ -27,23 +30,23 @@ void FTerrainModifier::InitTerrain2DArray()
 	terrain2DArray.Empty();
 
 	// max value of multiply x and y
-	terrainXYSize = FMath::Clamp<int32>(terrainXSize * terrainYSize, 0, 1073676289);
+	_terrainXYSize = FMath::Clamp<int32>(_terrainXSize * _terrainYSize, 0, 1073676289);
 
 	// initialize 2DArray by size
-	terrain2DArray.Init(0, terrainXYSize);
+	terrain2DArray.Init(0, _terrainXYSize);
 
 	// initialize 2DArray by size
-	octaveArray.Init(0, terrainXYSize);
+	octaveArray.Init(0, _terrainXYSize);
 
 	// initialize RawImageData by size*4(RGBA)
-	terrainRawImageData.Init(0, terrainXYSize * 4);
+	terrainRawImageData.Init(0, _terrainXYSize * 4);
 }
 
 void FTerrainModifier::InitTexturePackage(FString pathName, FString packageName)
 {
 	
 	UTexture2D* NewTexture = nullptr;
-	if (terrainXSize > 0 && terrainYSize > 0)
+	if (_terrainXSize > 0 && _terrainYSize > 0)
 	{
 		// create package
 		pathName.Append(packageName);
@@ -58,15 +61,15 @@ void FTerrainModifier::InitTexturePackage(FString pathName, FString packageName)
 			);
 
 		NewTexture->SetPlatformData(new FTexturePlatformData());
-		NewTexture->GetPlatformData()->SizeX = terrainXSize;
-		NewTexture->GetPlatformData()->SizeY = terrainYSize;
+		NewTexture->GetPlatformData()->SizeX = _terrainXSize;
+		NewTexture->GetPlatformData()->SizeY = _terrainYSize;
 		NewTexture->GetPlatformData()->PixelFormat = PF_R8G8B8A8;
 
 		// Allocate first mipmap.
 		FTexture2DMipMap* Mip = new FTexture2DMipMap();
 		NewTexture->GetPlatformData()->Mips.Add(Mip);
-		Mip->SizeX = terrainXSize;
-		Mip->SizeY = terrainYSize;
+		Mip->SizeX = _terrainXSize;
+		Mip->SizeY = _terrainYSize;
 
 		Mip->BulkData.Lock(LOCK_READ_WRITE);
 
@@ -92,7 +95,7 @@ void FTerrainModifier::InitTexturePackage(FString pathName, FString packageName)
 
 void FTerrainModifier::GenerateRandomNoiseTexture()
 {
-	UE_LOG(LogTemp, Log, TEXT("[FTerrianModifier] minHeight : %d, maxHeight : %d"), minHeight, maxHeight);
+	UE_LOG(LogTemp, Log, TEXT("[FTerrianModifier] _minHeight : %d, _maxHeight : %d"), _minHeight, _maxHeight);
 
 	std::random_device rd;
 	std::mt19937 generator(rd());
@@ -101,12 +104,12 @@ void FTerrainModifier::GenerateRandomNoiseTexture()
 
 	InitTerrain2DArray();
 
-	double amplitude = FMath::RandRange(float(maxHeight / OCTAVE_FADE_MAX_RATE), float(maxHeight / OCTAVE_FADE_MIN_RATE));
+	double amplitude = FMath::RandRange(float(_maxHeight / OCTAVE_FADE_MAX_RATE), float(_maxHeight / OCTAVE_FADE_MIN_RATE));
 	
 	// determined by bigger size between x and y axis
-	float standardSize = ((terrainXSize > terrainYSize) ? terrainXSize : terrainYSize);
+	float standardSize = ((_terrainXSize > _terrainYSize) ? _terrainXSize : _terrainYSize);
 	
-	float frequency = float(bumpiness) / standardSize;
+	float frequency = float(_bumpiness) / standardSize;
 
 	float interpolationAlpha = 1.0f;
 
@@ -125,7 +128,7 @@ void FTerrainModifier::GenerateRandomNoiseTexture()
 		interpolationAlpha /= fadeRate;
 	}
 
-	ClampArrayByHeightRange(minHeight, maxHeight, terrain2DArray);
+	ClampArrayByHeightRange(_minHeight, _maxHeight, terrain2DArray);
 
 	// set raw image data according to cell size according to terrain2DArray
 	GenerateRawImage();
@@ -176,6 +179,18 @@ void FTerrainModifier::GenerateRandomNoiseArray(int32 xSize, int32 ySize, float 
 	ClampArrayByHeightRange(genMinHeight, genMaxHeight, outArray);
 }
 
+void FTerrainModifier::GeneratePerlinNoiseOriginal()
+{
+	// set fade array
+	SetFadeArray(_cellSize, PseudoSine);
+
+	// generate random values in cellArray
+	GenerateRandomCellArray(_terrainXYSize, _cellSize);
+
+	// interpolate according to fade functions
+
+}
+
 void FTerrainModifier::ClampArrayByHeightRange(const float clampMinHeight, const float clampMaxHeight, TArray<float>& inputTerrain2DArray)
 {
 	for (int32 arrayIndex = 0; arrayIndex < inputTerrain2DArray.Num(); ++arrayIndex)
@@ -186,11 +201,11 @@ void FTerrainModifier::ClampArrayByHeightRange(const float clampMinHeight, const
 
 void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interpolationAlpha, const int32 amplitude, const float frequency, const float startNoise)
 {
-	for (int32 terrainYIndex = 0; terrainYIndex < terrainYSize; ++terrainYIndex)
+	for (int32 terrainYIndex = 0; terrainYIndex < _terrainYSize; ++terrainYIndex)
 	{
-		for (int32 terrainXIndex = 0; terrainXIndex < terrainXSize; ++terrainXIndex)
+		for (int32 terrainXIndex = 0; terrainXIndex < _terrainXSize; ++terrainXIndex)
 		{
-			octaveArray[terrainXSize * terrainYIndex + terrainXIndex] =
+			octaveArray[_terrainXSize * terrainYIndex + terrainXIndex] =
 				amplitude *
 				(FGenericPlatformMath::Sin(frequency * (double(terrainXIndex)) + startNoise) +
 					FGenericPlatformMath::Sin(frequency * (double(terrainYIndex)) + startNoise) + 2) / 4;
@@ -198,7 +213,7 @@ void FTerrainModifier::GenerateRandomTerrain2DArrayByCellSize(const float interp
 	}
 
 	// interpolating octave array with decreasing
-	for (int32 terrainIndex = 0; terrainIndex < terrainXYSize; ++terrainIndex)
+	for (int32 terrainIndex = 0; terrainIndex < _terrainXYSize; ++terrainIndex)
 	{
 		terrain2DArray[terrainIndex] = FMath::Lerp(terrain2DArray[terrainIndex], octaveArray[terrainIndex], interpolationAlpha);
 	}
@@ -238,13 +253,73 @@ void FTerrainModifier::GenerateTextureByTerrain2DArray()
 
 void FTerrainModifier::GenerateRawImage()
 {
-	for (int32 terrainIndex = 0; terrainIndex < terrainXYSize; ++terrainIndex)
+	for (int32 terrainIndex = 0; terrainIndex < _terrainXYSize; ++terrainIndex)
 	{
 		// conversion according to texture format
 		// amplitude halves, therefore leading to max value of maxHeight (according to geometric series)
 		// the probability of getting max value is very low. make visualizing easy by ramping up the value
-		terrainRawImageData[terrainIndex * 4] = FMath::Clamp(terrain2DArray[terrainIndex] / maxHeight * 255 * OCTAVE_FADE_MAX_RATE, 0, 255);
+		terrainRawImageData[terrainIndex * 4] = FMath::Clamp(terrain2DArray[terrainIndex] / _maxHeight * 255 * OCTAVE_FADE_MAX_RATE, 0, 255);
 	}
+}
+
+void FTerrainModifier::GenerateRandomCellArray(const int32 xySize, const uint8 cellSize)
+{
+	_terrainXYSize = _terrainXSize * _terrainYSize;
+
+	_pow = GetPowerOfCellSize(cellSize);
+	
+	_cellXSize = _terrainXSize >> _pow;
+	_cellYSize = _terrainYSize >> _pow;
+
+	// initialize cellArray by size
+	cellArray.Init(0, _terrainXYSize >> _pow);
+
+	// generate random
+	std::random_device rd;
+	std::mt19937 generator(rd());
+
+	std::uniform_int_distribution<int32> cellRandom(_minHeight, _maxHeight);
+
+	for (int32 i = 0; i < _cellXSize * _cellYSize; ++i)
+	{
+		cellArray[i] = cellRandom(generator);
+	}
+
+	return;
+}
+
+void FTerrainModifier::SetFadeArray(const uint8 cellSize, float(*fade)(float))
+{
+	// initialize fadeArray by size
+	fadeArray.Init(0, cellSize);
+
+	for (int32 i = 0; i < cellSize; ++i)
+	{
+		fadeArray[i] = (*fade)((float)i / cellSize);
+	}
+
+	return;
+}
+
+void FTerrainModifier::InterpolateCell()
+{
+}
+
+int8 FTerrainModifier::GetPowerOfCellSize(uint8 cellSize)
+{
+	int pow = 0;
+	while (cellSize > 1)
+	{
+		cellSize = cellSize >> 1;
+		pow++;
+	}
+
+	return pow;
+}
+
+float FTerrainModifier::PseudoSine(float input)
+{
+	return 3 * input * input - 2 * input * input * input;
 }
 
 #undef LOCTEXT_NAMESPACE

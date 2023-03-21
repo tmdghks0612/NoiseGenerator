@@ -113,7 +113,7 @@ void STerrainGenerate::constructWidgets()
 		.VAlign(VAlign_Top)
 		[
 			SNew(SButton)
-			.OnClicked(this, &STerrainGenerate::OnGenerateTerrainTextureButtonClicked)
+			.OnClicked(this, &STerrainGenerate::OnGenerateTerrainOriginalButtonClicked)
 			[
 				SNew(STextBlock)
 				.Text(FText(LOCTEXT("GenerateTerrainButtonText", "Generate Terrain2D")))
@@ -167,14 +167,12 @@ TOptional<int32> STerrainGenerate::OnGetBumpiness() const
 	return 0;
 }
 
-FReply STerrainGenerate::OnGenerateTerrainTextureButtonClicked()
+FReply STerrainGenerate::OnGenerateTerrainOriginalButtonClicked()
 {
 	if(false == ModifierInstance.IsValid())
 		UE_LOG(LogTemp, Warning, TEXT("[TerrainGenerate] : initialized instance pointer invalid"));
 
-	ModifierInstance.Pin()->InitTerrain2DArray();
-
-	ModifierInstance.Pin()->GenerateRandomNoiseTexture();
+	ModifierInstance.Pin()->GeneratePerlinNoiseOriginal();
 	return FReply::Handled();
 }
 

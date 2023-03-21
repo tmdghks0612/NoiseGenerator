@@ -46,7 +46,7 @@ private:
 
 protected:
 
-	FReply OnGenerateTerrainTextureButtonClicked();
+	FReply OnGenerateTerrainOriginalButtonClicked();
 
 protected:
 	TSharedPtr<SButton> GenerateTerrainButton;
