@@ -1,25 +1,24 @@
-# TerrainGenerator
-terrain generator using random noises and voxel mesh
+# NoiseGenerator
+noise generator using random noises and voxel mesh
 
 ## Intoduction
-* A Unreal plugin for generating terrain. Uses multiple inputs to generate a random Terrain      
+* A Unreal plugin for generating noise. Uses multiple inputs to generate a random Noise      
 * Plugin for future use on unreal projects with random world maps
 
 ## System Goal
-* Project targets to utilize Perlin noise and its modifications on maps
+* Project targets to utilize Perlin noise and its modifications on textures
 * Project targets to create a voxelized mesh to create data generated map for each coordinate
-* Secondary goal is on the speed of the terrain generated
 
 ## Unreal Engine
 * Unreal Engine's partial source will be on this repository as version managing
 
 ## Hierarchy Graph
-![Terrain Generator Hierarchy Design](https://user-images.githubusercontent.com/13249604/194839277-086d4d4f-28b9-4b4d-a0b1-2c78b0a98fbb.png)
+![Noise Generator Hierarchy Design](https://user-images.githubusercontent.com/13249604/194839277-086d4d4f-28b9-4b4d-a0b1-2c78b0a98fbb.png)
 * STabWidgetMain
-  * maintains the FTerrainModifier instance
+  * maintains the FNoiseModifier instance
   * constructs each tabs and initializes it
 
-* FTerrainModifier
+* FNoiseModifier
   * provides methods for each tabs to utilize
   * saves the values that needs to be shared between all tabs
 
@@ -33,7 +32,7 @@ terrain generator using random noises and voxel mesh
 
 ![image](https://user-images.githubusercontent.com/13249604/206855764-ba284b87-c445-4847-ae16-be1b3a3e01c0.png)
 
-  * TerrainGenerator creates a Texture file to visualize random arrays
+  * NoiseGenerator creates a Texture file to visualize random arrays
   * random arrays will be remapped in range of given Min/Max height
 
 
